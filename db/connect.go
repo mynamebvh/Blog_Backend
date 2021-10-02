@@ -17,6 +17,7 @@ func ConnectDB() {
 	
 	port := config.GetEnv("DB_PORT")
 	dbName := config.GetEnv("DB_NAME")
+
 	dsn := "sqlserver://localhost:"+ port +"?database=" + dbName
 	db, err = gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
 
@@ -25,6 +26,6 @@ func ConnectDB() {
 	}
 
 	fmt.Println("Connection Opened to Database")
-	db.AutoMigrate(&model.User{},&model.Tag{}, &model.Category{})
+	db.AutoMigrate(&model.User{},&model.Category{}, &model.Post{},&model.Tag{})
 	fmt.Println("Database Migrated")
 }
