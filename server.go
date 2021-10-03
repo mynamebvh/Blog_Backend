@@ -2,18 +2,16 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	config "mynamebvh.com/blog/config"
-	db "mynamebvh.com/blog/db"
+	"mynamebvh.com/blog/database"
+	"mynamebvh.com/blog/routers"
 )
 
 func main() {
   app := fiber.New()
 
-	db.ConnectDB()
+	database.ConnectDB()
 	
-  app.Get("/", func(c *fiber.Ctx) error {
-    return c.SendString(config.GetEnv("JWT_SECRET"))
-  })
+  routers.SetupRoutes(app)
 
   app.Listen(":3000")
 }

@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"fmt"
@@ -12,20 +12,17 @@ import (
 // ConnectDB connect to db
 func ConnectDB() {
 	var err error
-	var db *gorm.DB
-	_ = db
-	
 	port := config.GetEnv("DB_PORT")
 	dbName := config.GetEnv("DB_NAME")
 
 	dsn := "sqlserver://localhost:"+ port +"?database=" + dbName
-	db, err = gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
+	DB, err = gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		panic("failed to connect database")
 	}
 
 	fmt.Println("Connection Opened to Database")
-	db.AutoMigrate(&model.User{},&model.Category{}, &model.Post{},&model.Tag{})
+	DB.AutoMigrate(&model.User{},&model.Category{}, &model.Post{},&model.Tag{})
 	fmt.Println("Database Migrated")
 }
