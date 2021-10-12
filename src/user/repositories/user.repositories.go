@@ -11,7 +11,7 @@ type UserRepositoryInterface interface {
 	FindByID(id uint) entities.User
 	FindByEmail(email string) entities.User
 	Save(user entities.User) entities.User
-	Update(userId uint, user dto.UserUpdate) entities.User
+	Update(userId uint, user dto.UserUpdate) (entities.User, error)
 	Delete(id uint) error
 }
 
@@ -52,7 +52,7 @@ func (u *userRepository) Save(user entities.User) entities.User {
 	return user
 }
 
-func (u *userRepository) Update(userId uint, userUpdate dto.UserUpdate) entities.User {
+func (u *userRepository) Update(userId uint, userUpdate dto.UserUpdate) (entities.User, error) {
 	var user entities.User
 
 	dataUpdate := map[string]interface{}{
@@ -60,9 +60,12 @@ func (u *userRepository) Update(userId uint, userUpdate dto.UserUpdate) entities
 		"gender":   userUpdate.Gender,
 	}
 
-	u.DB.DB().Model(&user).Where("id = ?", userId).Updates(dataUpdate)
+	err := u.DB.DB().Model(&user).Where("id = ?", userId).Updates(dataUpdate).Error
 
-	return user
+	if err != nil {
+		return entities.User{}, err
+	}
+	return user, nil
 }
 
 func (u *userRepository) Delete(id uint) error {

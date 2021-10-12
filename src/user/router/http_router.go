@@ -25,5 +25,6 @@ func (r *RouterStruct) GetRoute() {
 
 	r.Web.Post("/api/auth/login", authHandlers.Login)
 	r.Web.Post("/api/auth/signup", userHandlers.CreateUser)
-	r.Web.Delete("/api/user",middlewares.Protected(),userHandlers.DeleteUser)
+	r.Web.Delete("/api/user", middlewares.Protected(), userHandlers.DeleteUser)
+	r.Web.Put("/api/user", middlewares.Protected(), userHandlers.UpdateUser)
 }

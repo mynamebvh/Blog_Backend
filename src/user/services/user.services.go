@@ -16,7 +16,8 @@ type UserService interface {
 	FindByID(id uint) entities.User
 	Login(data *dto.UserLogin) (dto.JwtResponse, error)
 	Signup(data *dto.UserRequest) (entities.User, error)
-	Delete(id uint) (bool, error)
+	Delete(id uint) error
+	Update(id uint, userUpdate dto.UserUpdate) (entities.User, error)
 }
 
 type userService struct {
@@ -82,10 +83,18 @@ func (c *userService) Signup(data *dto.UserRequest) (entities.User, error) {
 	return user, nil
 }
 
-func (c *userService) Delete(id uint) (bool, error) {
+func (c *userService) Delete(id uint) error {
 	if err := c.userRepository.Delete(id); err != nil {
-		return false, err
+		return err
+	}
+	return nil
+}
+
+func (c *userService) Update(id uint, userUpdate dto.UserUpdate) (entities.User, error) {
+	if user, err := c.userRepository.Update(id, userUpdate); err != nil {
+		return entities.User{}, err
+	} else {
+		return user, nil
 	}
 
-	return true, nil
 }
