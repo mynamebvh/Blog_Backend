@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"mynamebvh.com/blog/internal/web"
 	dto "mynamebvh.com/blog/src/user/dto"
 	"mynamebvh.com/blog/src/user/services"
@@ -55,5 +56,17 @@ func (services *userHandlers) UpdateUser(ctx *fiber.Ctx) error{
 }
 
 func (services *userHandlers) DeleteUser(ctx *fiber.Ctx) error{
-	return ctx.SendString("hi")
+	user := ctx.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	id := claims["id"].(float64)
+
+	_, err := services.UserService.Delete(uint(id))
+
+	if err != nil {
+		return web.JsonResponse(ctx, 404, err.Error() , nil)
+	}	else {
+		return web.JsonResponse(ctx, 200, "Xoá thành công", nil)
+	}
+	
+		
 }

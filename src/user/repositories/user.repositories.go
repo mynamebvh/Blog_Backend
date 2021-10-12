@@ -11,8 +11,8 @@ type UserRepositoryInterface interface {
 	FindByID(id uint) entities.User
 	FindByEmail(email string) entities.User
 	Save(user entities.User) entities.User
-	Update(userId uint,user dto.UserUpdate) entities.User
-	Delete(user entities.User)
+	Update(userId uint, user dto.UserUpdate) entities.User
+	Delete(id uint) error
 }
 
 type userRepository struct {
@@ -57,14 +57,14 @@ func (u *userRepository) Update(userId uint, userUpdate dto.UserUpdate) entities
 
 	dataUpdate := map[string]interface{}{
 		"fullname": userUpdate.Fullname,
-		"gender": userUpdate.Gender,
+		"gender":   userUpdate.Gender,
 	}
-	
+
 	u.DB.DB().Model(&user).Where("id = ?", userId).Updates(dataUpdate)
 
 	return user
 }
 
-func (u *userRepository) Delete(user entities.User) {
-	u.DB.DB().Delete(&user)
+func (u *userRepository) Delete(id uint) error {
+	return u.DB.DB().Delete(entities.User{}, id).Error
 }

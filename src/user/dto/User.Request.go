@@ -1,18 +1,18 @@
 package dto
 
 type UserLogin struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `validate:"required,email"`
+	Password string `validate:"required"`
 }
 
 type UserRequest struct {
-	Fullname string `json:"fullname"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Gender   bool   `json:"gender"`
+	Fullname string `validate:"required"`
+	Email    string `validate:"required"`
+	Password string `validate:"required"`
+	Gender   bool   `validate:"required"`
 }
 
 type UserUpdate struct {
-	Fullname string `json:"fullname"`
-	Gender   bool   `json:"gender"`
+	Fullname string `validate:"required"`
+	Gender   bool   `validate:"required"`
 }

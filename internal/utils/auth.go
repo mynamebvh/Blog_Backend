@@ -19,8 +19,10 @@ type JwtTokenInterface interface {
 
 func Sign(claims jwt.MapClaims) TokenStruct{
 	timeNow := time.Now()
-	tokenExpired := timeNow.Add(time.Hour * 24).Unix()
 
+	// jwtExpired, _:= time.ParseDuration(config.GetEnv("JWT_EXPIRED"))
+	tokenExpired := timeNow.Add(time.Hour * 2).Unix()
+ 
 	if claims["id"] == nil {
 		return TokenStruct{}
 	}
@@ -29,21 +31,16 @@ func Sign(claims jwt.MapClaims) TokenStruct{
 
 	// setup userdata
 	var _, checkExp = claims["exp"]
-	var _, checkIat = claims["iat"]
 
 	if !checkExp {
 		claims["exp"] = tokenExpired
-	}
-
-	if !checkIat {
-		claims["iat"] = timeNow
 	}
 
 	claims["token_type"] = "access_token"
 	
 	token.Claims = claims
 	
-	t, err := token.SignedString([]byte(config.GetEnv("SECRET")))
+	t, err := token.SignedString([]byte(config.GetEnv("JWT_SECRET")))
 
 	if(err != nil){
 		return TokenStruct{}

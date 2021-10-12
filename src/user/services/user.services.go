@@ -1,8 +1,7 @@
 package services
 
 import (
-	"database/sql"
-	"fmt"
+	"errors"
 	"log"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -17,11 +16,12 @@ type UserService interface {
 	FindByID(id uint) entities.User
 	Login(data *dto.UserLogin) (dto.JwtResponse, error)
 	Signup(data *dto.UserRequest) (entities.User, error)
+	Delete(id uint) (bool, error)
 }
 
 type userService struct {
-	userRepository     repositories.UserRepositoryInterface
-	jwtAuth            utils.JwtTokenInterface
+	userRepository repositories.UserRepositoryInterface
+	jwtAuth        utils.JwtTokenInterface
 }
 
 func NewUserService(
@@ -29,8 +29,8 @@ func NewUserService(
 	jwtAuth utils.JwtTokenInterface,
 ) UserService {
 	return &userService{
-		userRepository:   userRepository,
-		jwtAuth:          jwtAuth,
+		userRepository: userRepository,
+		jwtAuth:        jwtAuth,
 	}
 }
 
@@ -41,11 +41,9 @@ func (c *userService) FindByID(id uint) entities.User {
 func (c *userService) Login(data *dto.UserLogin) (dto.JwtResponse, error) {
 
 	user := c.userRepository.FindByEmail(data.Email)
-	
-	fmt.Println(user)
 
 	if user.ID == 0 {
-		return dto.JwtResponse{}, sql.ErrNoRows
+		return dto.JwtResponse{}, errors.New("tài khoản hoặc mật khẩu sai")
 	}
 
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
@@ -56,7 +54,6 @@ func (c *userService) Login(data *dto.UserLogin) (dto.JwtResponse, error) {
 
 	userToken := utils.Sign(jwt.MapClaims{
 		"id": user.ID,
-
 	})
 
 	token := dto.JwtResponse(userToken)
@@ -68,8 +65,8 @@ func (c *userService) Signup(data *dto.UserRequest) (entities.User, error) {
 
 	user := entities.User{
 		Fullname: data.Fullname,
-		Email: data.Email,
-		Gender: data.Gender,
+		Email:    data.Email,
+		Gender:   data.Gender,
 		Password: data.Password,
 	}
 
@@ -83,4 +80,12 @@ func (c *userService) Signup(data *dto.UserRequest) (entities.User, error) {
 
 	c.userRepository.Save(user)
 	return user, nil
+}
+
+func (c *userService) Delete(id uint) (bool, error) {
+	if err := c.userRepository.Delete(id); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

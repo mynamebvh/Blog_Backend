@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 
+	middlewares "mynamebvh.com/blog/internal/middlewares"
 	"mynamebvh.com/blog/src/user/handlers"
 	"mynamebvh.com/blog/src/user/repositories"
 	"mynamebvh.com/blog/src/user/services"
@@ -22,6 +23,7 @@ func (r *RouterStruct) GetRoute() {
 	authHandlers := handlers.NewHttpHandler(userService)
 	userHandlers := handlers.NewUserHttpHandler(userService)
 
-	r.Web.Post("api/auth/login", authHandlers.Login)
-	r.Web.Post("api/user/signup", userHandlers.CreateUser)
+	r.Web.Post("/api/auth/login", authHandlers.Login)
+	r.Web.Post("/api/auth/signup", userHandlers.CreateUser)
+	r.Web.Delete("/api/user",middlewares.Protected(),userHandlers.DeleteUser)
 }
