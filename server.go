@@ -8,20 +8,20 @@ import (
 )
 
 func main() {
-	
-  app := fiber.New()
+
+	app := fiber.New()
 
 	sqlServer := db.ConnectDB()
-	
+
 	routeStruct := routes.RouterStruct{
 		RouterStruct: web.RouterStruct{
 			Web:       app,
-			SqlServer:   sqlServer,
+			SqlServer: sqlServer,
 		},
 	}
-	
+
 	router := routes.NewHttpRoute(routeStruct)
 	router.GetRoutes()
 
-  app.Listen(":3000")
+	app.Listen(":3000")
 }

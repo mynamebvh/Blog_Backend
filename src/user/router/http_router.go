@@ -18,8 +18,8 @@ func NewHttpRoute(
 }
 
 func (r *RouterStruct) GetRoute() {
-	userMysqlRepo := repositories.NewUserRepostiory(r.SqlServer)
-	userService := services.NewUserService(userMysqlRepo, r.jwtAuth)
+	userSqlServerRepo := repositories.NewUserRepostiory(r.SqlServer)
+	userService := services.NewUserService(userSqlServerRepo, r.jwtAuth)
 	authHandlers := handlers.NewHttpHandler(userService)
 	userHandlers := handlers.NewUserHttpHandler(userService)
 
