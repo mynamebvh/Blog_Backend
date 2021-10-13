@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"mynamebvh.com/blog/internal/web"
 	categoryRouter "mynamebvh.com/blog/src/category/router"
+	tagRouter "mynamebvh.com/blog/src/tag/router"
 	userRouter "mynamebvh.com/blog/src/user/router"
 )
 
@@ -40,6 +41,12 @@ func (c *RouterStruct) GetRoutes() {
 	}
 	categoryRouter := categoryRouter.NewHttpRoute(categoryRouterStruct)
 	categoryRouter.GetRoute()
+
+	tagRouterStruct := tagRouter.RouterStruct{
+		RouterStruct: webRouterConfig,
+	}
+	tagRouter := tagRouter.NewHttpRoute(tagRouterStruct)
+	tagRouter.GetRoute()
 
 	// handling 404 error
 	c.Web.Use(func(c *fiber.Ctx) error {

@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -84,6 +85,12 @@ func (c *userService) Signup(data *dto.UserRequest) (entities.User, error) {
 }
 
 func (c *userService) Delete(id uint) error {
+	isId := c.userRepository.FindByID(id)
+
+	if isId.ID == 0 {
+		return fmt.Errorf("Id không tồn tại")
+	}
+
 	if err := c.userRepository.Delete(id); err != nil {
 		return err
 	}
@@ -91,6 +98,12 @@ func (c *userService) Delete(id uint) error {
 }
 
 func (c *userService) Update(id uint, userUpdate dto.UserUpdate) (entities.User, error) {
+	isId := c.userRepository.FindByID(id)
+
+	if isId.ID == 0 {
+		return entities.User{}, fmt.Errorf("Id không tồn tại")
+	}
+
 	if user, err := c.userRepository.Update(id, userUpdate); err != nil {
 		return entities.User{}, err
 	} else {

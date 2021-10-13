@@ -8,48 +8,48 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/internal/web"
-	"mynamebvh.com/blog/src/category/dto"
-	"mynamebvh.com/blog/src/category/services"
+	"mynamebvh.com/blog/src/tag/dto"
+	"mynamebvh.com/blog/src/tag/services"
 )
 
-type CategoryHandlerInterface interface {
-	GetCategory(ctx *fiber.Ctx) error
-	CreateCategory(ctx *fiber.Ctx) error
-	UpdateCategory(ctx *fiber.Ctx) error
-	DeleteCategory(ctx *fiber.Ctx) error
+type TagHandlerInterface interface {
+	GetTag(ctx *fiber.Ctx) error
+	CreateTag(ctx *fiber.Ctx) error
+	UpdateTag(ctx *fiber.Ctx) error
+	DeleteTag(ctx *fiber.Ctx) error
 }
 
-type CategoryHandler struct {
-	categoryService services.CategoryServiceInterface
+type TagHandler struct {
+	tagService services.TagServiceInterface
 }
 
 func NewUserHttpHandler(
-	categoryService services.CategoryServiceInterface,
-) CategoryHandlerInterface {
-	return &CategoryHandler{
-		categoryService: categoryService,
+	tagService services.TagServiceInterface,
+) TagHandlerInterface {
+	return &TagHandler{
+		tagService: tagService,
 	}
 }
 
-func (services *CategoryHandler) GetCategory(ctx *fiber.Ctx) error {
-	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.categoryService.FindByAll())
+func (services *TagHandler) GetTag(ctx *fiber.Ctx) error {
+	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.tagService.FindByAll())
 }
 
-func (services *CategoryHandler) CreateCategory(ctx *fiber.Ctx) error {
+func (services *TagHandler) CreateTag(ctx *fiber.Ctx) error {
 
-	newCategory := new(dto.Category)
+	newTag := new(dto.Tag)
 
-	if err := ctx.BodyParser(&newCategory); err != nil {
+	if err := ctx.BodyParser(&newTag); err != nil {
 		log.Fatal(err)
 	}
 
-	errors := utils.Validate(newCategory)
+	errors := utils.Validate(newTag)
 
 	if errors != nil {
 		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
 	}
 
-	res, err := services.categoryService.Save(*newCategory)
+	res, err := services.tagService.Save(*newTag)
 
 	if err != nil {
 		web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi", err)
@@ -57,8 +57,8 @@ func (services *CategoryHandler) CreateCategory(ctx *fiber.Ctx) error {
 	return web.JsonResponse(ctx, http.StatusOK, "Tạo thành công", res)
 }
 
-func (services *CategoryHandler) UpdateCategory(ctx *fiber.Ctx) error {
-	categoryUpdate := new(dto.Category)
+func (services *TagHandler) UpdateTag(ctx *fiber.Ctx) error {
+	tagUpdate := new(dto.Tag)
 
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 
@@ -66,17 +66,17 @@ func (services *CategoryHandler) UpdateCategory(ctx *fiber.Ctx) error {
 		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
 	}
 
-	if err := ctx.BodyParser(&categoryUpdate); err != nil {
+	if err := ctx.BodyParser(&tagUpdate); err != nil {
 		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
 	}
 
-	errors := utils.Validate(categoryUpdate)
+	errors := utils.Validate(tagUpdate)
 
 	if errors != nil {
 		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
 	}
 
-	category, err := services.categoryService.Update(uint(id), *categoryUpdate)
+	category, err := services.tagService.Update(uint(id), *tagUpdate)
 
 	if err != nil {
 		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
@@ -85,7 +85,7 @@ func (services *CategoryHandler) UpdateCategory(ctx *fiber.Ctx) error {
 	return web.JsonResponse(ctx, http.StatusOK, "Cập nhật thành công", category)
 }
 
-func (services *CategoryHandler) DeleteCategory(ctx *fiber.Ctx) error {
+func (services *TagHandler) DeleteTag(ctx *fiber.Ctx) error {
 
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 
@@ -93,7 +93,7 @@ func (services *CategoryHandler) DeleteCategory(ctx *fiber.Ctx) error {
 		return web.JsonResponse(ctx, 404, err.Error(), err.Error())
 	}
 
-	err = services.categoryService.Delete(uint(id))
+	err = services.tagService.Delete(uint(id))
 
 	if err != nil {
 		return web.JsonResponse(ctx, 404, "Lỗi", err.Error())

@@ -38,7 +38,7 @@ func (services *authHandlers) Login(ctx *fiber.Ctx) error {
 	errors := utils.Validate(userData)
 
 	if errors != nil {
-		return web.JsonResponse(ctx, 404, "Lỗi validate", errors)
+		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
 	}
 
 	res, err := services.UserService.Login(userData)

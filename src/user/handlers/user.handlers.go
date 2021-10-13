@@ -66,7 +66,7 @@ func (services *userHandlers) UpdateUser(ctx *fiber.Ctx) error {
 	errors := utils.Validate(userUpdate)
 
 	if errors != nil {
-		return web.JsonResponse(ctx, 404, "Lỗi validate", errors)
+		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
 	}
 
 	userUpdated, err := services.UserService.Update(uint(id), *userUpdate)
