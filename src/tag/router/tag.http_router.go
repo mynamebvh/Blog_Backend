@@ -23,7 +23,7 @@ func (r *RouterStruct) GetRoute() {
 	tagHandler := handler.NewUserHttpHandler(tagService)
 
 	r.Web.Get("/api/tag", tagHandler.GetTag)
-	r.Web.Post("/api/tag", tagHandler.CreateTag)
+	r.Web.Post("/api/tag", middlewares.Protected(), tagHandler.CreateTag)
 	r.Web.Put("/api/tag/:id", middlewares.Protected(), tagHandler.UpdateTag)
 	r.Web.Delete("/api/tag/:id", middlewares.Protected(), tagHandler.DeleteTag)
 }

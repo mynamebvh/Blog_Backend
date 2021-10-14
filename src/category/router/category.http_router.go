@@ -23,7 +23,7 @@ func (r *RouterStruct) GetRoute() {
 	categoryHandler := handler.NewUserHttpHandler(categoryService)
 
 	r.Web.Get("/api/category", categoryHandler.GetCategory)
-	r.Web.Post("/api/category", categoryHandler.CreateCategory)
+	r.Web.Post("/api/category", middlewares.Protected(), categoryHandler.CreateCategory)
 	r.Web.Put("/api/category/:id", middlewares.Protected(), categoryHandler.UpdateCategory)
 	r.Web.Delete("/api/category/:id", middlewares.Protected(), categoryHandler.DeleteCategory)
 }
