@@ -22,7 +22,7 @@ type sqlServer struct {
 }
 
 // ConnectDB connect to db
-func ConnectDB() SqlServer{
+func ConnectDB() SqlServer {
 	var err error
 	var db *gorm.DB
 
@@ -30,10 +30,10 @@ func ConnectDB() SqlServer{
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
-			SlowThreshold:              time.Second,   // Slow SQL threshold
-			LogLevel:                   logger.Silent, // Log level
-			IgnoreRecordNotFoundError: true,           // Ignore ErrRecordNotFound error for logger
-			Colorful:                  false,          // Disable color
+			SlowThreshold:             time.Second,   // Slow SQL threshold
+			LogLevel:                  logger.Silent, // Log level
+			IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error for logger
+			Colorful:                  false,         // Disable color
 		},
 	)
 
@@ -55,7 +55,8 @@ func ConnectDB() SqlServer{
 	}
 
 	fmt.Println("Connection Opened to Database")
-	db.AutoMigrate(&entities.User{},&entities.Category{}, &entities.Post{},&entities.Tag{})
+	// db.AutoMigrate(&entities.User{},&entities.Category{}, &entities.Post{},&entities.Tag{})
+	db.AutoMigrate(&entities.User{}, &entities.Post{})
 	fmt.Println("Database Migrated")
 
 	return &sqlServer{
@@ -66,4 +67,3 @@ func ConnectDB() SqlServer{
 func (c sqlServer) DB() *gorm.DB {
 	return c.db
 }
-

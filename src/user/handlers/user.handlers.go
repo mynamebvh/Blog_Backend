@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -14,6 +15,7 @@ import (
 
 type UserHandlers interface {
 	GetUser(ctx *fiber.Ctx) error
+	GetAllUser(ctx *fiber.Ctx) error
 	CreateUser(ctx *fiber.Ctx) error
 	UpdateUser(ctx *fiber.Ctx) error
 	DeleteUser(ctx *fiber.Ctx) error
@@ -32,6 +34,23 @@ func NewUserHttpHandler(
 }
 
 func (services *userHandlers) GetUser(ctx *fiber.Ctx) error {
+
+	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
+
+	if err != nil {
+		return web.JsonResponse(ctx, http.StatusOK, "Lỗi id", nil)
+	}
+
+	user := services.UserService.FindByID(uint(id))
+
+	if user.ID == 0 {
+		return web.JsonResponse(ctx, http.StatusBadRequest, "Không tìm thấy người dùng", nil)
+	}
+
+	return web.JsonResponse(ctx, http.StatusOK, "Thành công", user)
+}
+
+func (services *userHandlers) GetAllUser(ctx *fiber.Ctx) error {
 
 	return ctx.SendString("hi")
 }

@@ -12,7 +12,7 @@ import (
 type PostServiceInterface interface {
 	FindByAll() []entities.Post
 	FindById(id uint) entities.Post
-	Save(post dto.Post) (entities.Post, error)
+	Save(id uint, post dto.Post) (entities.Post, error)
 	Delete(id uint) error
 	Update(id uint, post dto.PostUpdate) (entities.Post, error)
 }
@@ -37,7 +37,7 @@ func (c *PostService) FindByAll() []entities.Post {
 	return c.postRepository.FindAll()
 }
 
-func (c *PostService) Save(post dto.Post) (entities.Post, error) {
+func (c *PostService) Save(id uint, post dto.Post) (entities.Post, error) {
 
 	slug := slug.Make(post.Title)
 
@@ -45,7 +45,7 @@ func (c *PostService) Save(post dto.Post) (entities.Post, error) {
 		Title:     post.Title,
 		Published: post.Published,
 		Content:   post.Content,
-		UserID:    post.UserID,
+		UserID:    id,
 		Slug:      slug,
 	}
 
@@ -67,8 +67,6 @@ func (c *PostService) Delete(id uint) error {
 
 func (c *PostService) Update(id uint, post dto.PostUpdate) (entities.Post, error) {
 
-	slug := slug.Make(post.Title)
-
 	isId := c.postRepository.FindByID(id)
 
 	if isId.ID == 0 {
@@ -79,7 +77,6 @@ func (c *PostService) Update(id uint, post dto.PostUpdate) (entities.Post, error
 		Title:     post.Title,
 		Content:   post.Content,
 		Published: post.Published,
-		Slug:      slug,
 	}
 
 	if result, err := c.postRepository.Update(id, postUpdate); err != nil {

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/gosimple/slug"
 	db "mynamebvh.com/blog/infrastructures/db"
 	"mynamebvh.com/blog/internal/entities"
 	"mynamebvh.com/blog/src/post/dto"
@@ -39,22 +40,23 @@ func (u *PostRepository) FindByID(id uint) entities.Post {
 }
 
 func (u *PostRepository) Save(post entities.Post) entities.Post {
-
-	u.DB.DB().Save(&post)
-
+	u.DB.DB().Debug().Create(&post)
 	return post
 }
 
-func (u *PostRepository) Update(id uint, tagUpdate dto.PostUpdate) (entities.Post, error) {
+func (u *PostRepository) Update(id uint, postUpdate dto.PostUpdate) (entities.Post, error) {
 	var postEntities entities.Post
 
+	slug := slug.Make(postUpdate.Title)
+
 	dataUpdate := map[string]interface{}{
-		"name":        tagUpdate.Content,
-		"description": tagUpdate.Content,
-		"slug":        tagUpdate.Content,
+		"title":     postUpdate.Title,
+		"content":   postUpdate.Content,
+		"published": postUpdate.Published,
+		"slug":      slug,
 	}
 
-	err := u.DB.DB().Model(&postEntities).Where("id = ?", id).Updates(dataUpdate).Error
+	err := u.DB.DB().Model(&postEntities).Where("id = ?", id).Updates(&dataUpdate).Error
 
 	if err != nil {
 		return entities.Post{}, err

@@ -22,7 +22,7 @@ func (r *RouterStruct) GetRoute() {
 	postService := services.NewUserService(postSqlServerRepo)
 	postHandler := handler.NewUserHttpHandler(postService)
 
-	r.Web.Get("/api/post", middlewares.Protected(), postHandler.GetPost)
+	r.Web.Get("/api/post/:id", postHandler.GetPost)
 	r.Web.Post("/api/post", middlewares.Protected(), postHandler.CreatePost)
 	r.Web.Put("/api/post/:id", middlewares.Protected(), postHandler.UpdatePost)
 	r.Web.Delete("/api/post/:id", middlewares.Protected(), postHandler.DeletePost)

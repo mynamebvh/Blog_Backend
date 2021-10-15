@@ -32,7 +32,18 @@ func NewUserHttpHandler(
 }
 
 func (services *PostHandler) GetPost(ctx *fiber.Ctx) error {
-	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.postService.FindByAll())
+	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
+
+	if err != nil {
+		return web.JsonResponse(ctx, 404, "Lỗi máy chủ", err.Error())
+	}
+
+	post := services.postService.FindById(uint(id))
+
+	if post.ID == 0 {
+		return web.JsonResponse(ctx, http.StatusBadRequest, "Không tìm thấy bài đăng", nil)
+	}
+	return web.JsonResponse(ctx, http.StatusOK, "Thành công", post)
 }
 
 func (services *PostHandler) CreatePost(ctx *fiber.Ctx) error {
@@ -43,13 +54,19 @@ func (services *PostHandler) CreatePost(ctx *fiber.Ctx) error {
 		log.Fatal(err)
 	}
 
+	id, err := strconv.ParseUint(newPost.UserId, 10, 32)
+
+	if err != nil {
+		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
+	}
+
 	errors := utils.Validate(newPost)
 
 	if errors != nil {
 		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
 	}
 
-	res, err := services.postService.Save(*newPost)
+	res, err := services.postService.Save(uint(id), *newPost)
 
 	if err != nil {
 		web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi", err)
