@@ -10,5 +10,5 @@ type User struct {
 	Email    string `gorm:"unique;not null;size:100" json:"email"`
 	Password string `gorm:"not null" json:"password"`
 	Gender   bool   `gorm:"type:bool;not null" json:"gender"`
-	Post     []Post `gorm:"foreignKey:UserID"`
+	Post     []Post `gorm:"foreignKey:UserID" json:"post"`
 }

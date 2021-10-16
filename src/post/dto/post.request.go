@@ -1,10 +1,11 @@
 package dto
 
 type Post struct {
-	Title     string `json:"title"`
-	Published bool   `json:"published"`
-	Content   string `json:"content"`
-	UserId    string `json:"user_id"`
+	Title      string `json:"title"`
+	Published  bool   `json:"published"`
+	Content    string `json:"content"`
+	UserID     string `json:"user_id"`
+	CategoryID string `json:"category_id"`
 }
 
 type PostUpdate struct {

@@ -54,19 +54,13 @@ func (services *PostHandler) CreatePost(ctx *fiber.Ctx) error {
 		log.Fatal(err)
 	}
 
-	id, err := strconv.ParseUint(newPost.UserId, 10, 32)
-
-	if err != nil {
-		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
-	}
-
 	errors := utils.Validate(newPost)
 
 	if errors != nil {
 		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
 	}
 
-	res, err := services.postService.Save(uint(id), *newPost)
+	res, err := services.postService.Save(*newPost)
 
 	if err != nil {
 		web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi", err)

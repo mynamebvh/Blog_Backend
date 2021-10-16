@@ -31,7 +31,7 @@ require (
 )
 
 require (
-	github.com/gosimple/slug v1.10.0 // indirect
+	github.com/gosimple/slug v1.10.0
 	github.com/gosimple/unidecode v1.0.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )

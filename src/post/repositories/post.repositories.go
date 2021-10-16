@@ -40,7 +40,7 @@ func (u *PostRepository) FindByID(id uint) entities.Post {
 }
 
 func (u *PostRepository) Save(post entities.Post) entities.Post {
-	u.DB.DB().Debug().Create(&post)
+	u.DB.DB().Create(&post)
 	return post
 }
 

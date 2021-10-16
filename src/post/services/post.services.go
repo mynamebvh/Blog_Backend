@@ -5,6 +5,7 @@ import (
 
 	"github.com/gosimple/slug"
 	"mynamebvh.com/blog/internal/entities"
+	"mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/src/post/dto"
 	"mynamebvh.com/blog/src/post/repositories"
 )
@@ -12,7 +13,7 @@ import (
 type PostServiceInterface interface {
 	FindByAll() []entities.Post
 	FindById(id uint) entities.Post
-	Save(id uint, post dto.Post) (entities.Post, error)
+	Save(post dto.Post) (entities.Post, error)
 	Delete(id uint) error
 	Update(id uint, post dto.PostUpdate) (entities.Post, error)
 }
@@ -37,16 +38,25 @@ func (c *PostService) FindByAll() []entities.Post {
 	return c.postRepository.FindAll()
 }
 
-func (c *PostService) Save(id uint, post dto.Post) (entities.Post, error) {
+func (c *PostService) Save(post dto.Post) (entities.Post, error) {
+
+	arrId := []string{post.UserID, post.CategoryID}
+
+	result, err := utils.ParseUint(arrId)
+
+	if err != nil {
+		return entities.Post{}, err
+	}
 
 	slug := slug.Make(post.Title)
 
 	newPost := entities.Post{
-		Title:     post.Title,
-		Published: post.Published,
-		Content:   post.Content,
-		UserID:    id,
-		Slug:      slug,
+		Title:      post.Title,
+		Published:  post.Published,
+		Content:    post.Content,
+		UserID:     result[0],
+		CategoryID: result[1],
+		Slug:       slug,
 	}
 
 	return c.postRepository.Save(newPost), nil
