@@ -3,7 +3,7 @@ package services
 import (
 	"fmt"
 
-	"github.com/gosimple/slug"
+	slugUtils "github.com/gosimple/slug"
 	"mynamebvh.com/blog/internal/entities"
 	"mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/src/post/dto"
@@ -12,7 +12,7 @@ import (
 
 type PostServiceInterface interface {
 	FindByAll() []entities.Post
-	FindById(id uint) entities.Post
+	FindById(id uint) dto.PostResponse
 	Save(post dto.Post) (entities.Post, error)
 	Delete(id uint) error
 	Update(id uint, post dto.PostUpdate) (entities.Post, error)
@@ -30,7 +30,7 @@ func NewUserService(
 	}
 }
 
-func (c *PostService) FindById(id uint) entities.Post {
+func (c *PostService) FindById(id uint) dto.PostResponse {
 	return c.postRepository.FindByID(id)
 }
 
@@ -48,7 +48,7 @@ func (c *PostService) Save(post dto.Post) (entities.Post, error) {
 		return entities.Post{}, err
 	}
 
-	slug := slug.Make(post.Title)
+	slug := slugUtils.Make(post.Title)
 
 	newPost := entities.Post{
 		Title:      post.Title,
@@ -59,13 +59,24 @@ func (c *PostService) Save(post dto.Post) (entities.Post, error) {
 		Slug:       slug,
 	}
 
-	return c.postRepository.Save(newPost), nil
+	newSlugs := []entities.Tag{}
+	listTag := post.Tags
+
+	for _, t := range listTag {
+		slug := slugUtils.Make(t.Name)
+		newSlugs = append(newSlugs, entities.Tag{
+			Name: t.Name,
+			Slug: slug,
+		})
+	}
+
+	return c.postRepository.Save(newPost, newSlugs), nil
 }
 
 func (c *PostService) Delete(id uint) error {
 	isId := c.postRepository.FindByID(id)
 
-	if isId.ID == 0 {
+	if isId.UserID == 0 {
 		return fmt.Errorf("Id không tồn tại")
 	}
 
@@ -79,7 +90,7 @@ func (c *PostService) Update(id uint, post dto.PostUpdate) (entities.Post, error
 
 	isId := c.postRepository.FindByID(id)
 
-	if isId.ID == 0 {
+	if isId.UserID == 0 {
 		return entities.Post{}, fmt.Errorf("Id không tồn tại")
 	}
 

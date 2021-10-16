@@ -40,7 +40,7 @@ func (services *PostHandler) GetPost(ctx *fiber.Ctx) error {
 
 	post := services.postService.FindById(uint(id))
 
-	if post.ID == 0 {
+	if post.UserID == 0 {
 		return web.JsonResponse(ctx, http.StatusBadRequest, "Không tìm thấy bài đăng", nil)
 	}
 	return web.JsonResponse(ctx, http.StatusOK, "Thành công", post)

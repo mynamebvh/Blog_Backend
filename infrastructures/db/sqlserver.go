@@ -55,8 +55,7 @@ func ConnectDB() SqlServer {
 	}
 
 	fmt.Println("Connection Opened to Database")
-	db.AutoMigrate(&entities.User{}, &entities.Category{}, &entities.Post{}, &entities.Tag{})
-	// db.AutoMigrate(&entities.User{}, &entities.Category{}, &entities.Post{})
+	db.AutoMigrate(&entities.User{}, &entities.Category{}, &entities.Post{}, &entities.Tag{}, &entities.PostTag{})
 	fmt.Println("Database Migrated")
 
 	return &sqlServer{
