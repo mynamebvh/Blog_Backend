@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepositoryInterface interface {
-	FindAll() []entities.User
+	FindAll(page int, pageSize int) []entities.User
 	FindByID(id uint) entities.User
 	FindByEmail(email string) entities.User
 	Save(user entities.User) entities.User
@@ -25,11 +25,11 @@ func NewUserRepostiory(DB db.SqlServer) UserRepositoryInterface {
 	}
 }
 
-func (u *userRepository) FindAll() []entities.User {
-	var products []entities.User
-	u.DB.DB().Find(&products)
+func (u *userRepository) FindAll(page int, pageSize int) []entities.User {
+	var users []entities.User
+	u.DB.DB().Find(&users)
 
-	return products
+	return users
 }
 
 func (u *userRepository) FindByID(id uint) entities.User {

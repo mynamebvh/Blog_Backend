@@ -11,7 +11,7 @@ import (
 )
 
 type PostServiceInterface interface {
-	FindByAll() []entities.Post
+	FindByAll(page int, pageSize int) dto.PostPagination
 	FindById(id uint) dto.PostResponse
 	Save(post dto.Post) (entities.Post, error)
 	Delete(id uint) error
@@ -34,8 +34,8 @@ func (c *PostService) FindById(id uint) dto.PostResponse {
 	return c.postRepository.FindByID(id)
 }
 
-func (c *PostService) FindByAll() []entities.Post {
-	return c.postRepository.FindAll()
+func (c *PostService) FindByAll(page int, pageSize int) dto.PostPagination {
+	return c.postRepository.FindAll(page, pageSize)
 }
 
 func (c *PostService) Save(post dto.Post) (entities.Post, error) {

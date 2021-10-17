@@ -14,6 +14,7 @@ import (
 
 type PostHandlerInterface interface {
 	GetPost(ctx *fiber.Ctx) error
+	GetAllPost(ctx *fiber.Ctx) error
 	CreatePost(ctx *fiber.Ctx) error
 	UpdatePost(ctx *fiber.Ctx) error
 	DeletePost(ctx *fiber.Ctx) error
@@ -29,6 +30,23 @@ func NewUserHttpHandler(
 	return &PostHandler{
 		postService: postService,
 	}
+}
+func (services *PostHandler) GetAllPost(ctx *fiber.Ctx) error {
+	page, err := strconv.Atoi(ctx.Query("page"))
+
+	if err != nil {
+		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi", err.Error())
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
+
+	if err != nil {
+		pageSize = 10
+	}
+
+	postList := services.postService.FindByAll(page, pageSize)
+
+	return web.JsonResponse(ctx, http.StatusOK, "Thành công", postList)
 }
 
 func (services *PostHandler) GetPost(ctx *fiber.Ctx) error {
