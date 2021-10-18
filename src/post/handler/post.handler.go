@@ -35,7 +35,7 @@ func (services *PostHandler) GetAllPost(ctx *fiber.Ctx) error {
 	page, err := strconv.Atoi(ctx.Query("page"))
 
 	if err != nil {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi", err.Error())
+		page = 1
 	}
 
 	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))

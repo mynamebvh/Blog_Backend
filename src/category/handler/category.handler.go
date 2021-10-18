@@ -44,7 +44,19 @@ func (services *CategoryHandler) GetCategory(ctx *fiber.Ctx) error {
 		return web.JsonResponse(ctx, 404, err.Error(), err.Error())
 	}
 
-	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.categoryService.FindById(uint(id), 10, 0))
+	page, err := strconv.Atoi(ctx.Query("page"))
+
+	if err != nil {
+		page = 1
+	}
+
+	pageSize, err := strconv.Atoi(ctx.Query("pageSize"))
+
+	if err != nil {
+		pageSize = 10
+	}
+
+	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.categoryService.FindById(uint(id), page, pageSize))
 }
 
 func (services *CategoryHandler) CreateCategory(ctx *fiber.Ctx) error {
