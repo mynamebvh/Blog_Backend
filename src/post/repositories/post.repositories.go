@@ -7,12 +7,11 @@ import (
 	"github.com/gosimple/slug"
 	db "mynamebvh.com/blog/infrastructures/db"
 	"mynamebvh.com/blog/internal/entities"
-	utils "mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/src/post/dto"
 )
 
 type PostRepositoryInterface interface {
-	FindAll(page int, pageSize int) dto.PostPagination
+	FindAll(page int, pageSize int, offset int) dto.PostPagination
 	FindByID(id uint) dto.PostResponse
 	Save(post entities.Post, tags []entities.Tag) entities.Post
 	Update(id uint, postUpdate dto.PostUpdate) (entities.Post, error)
@@ -29,48 +28,58 @@ func NewUserRepostiory(DB db.SqlServer) PostRepositoryInterface {
 	}
 }
 
-func (u *PostRepository) FindAll(page int, pageSize int) dto.PostPagination {
-	var posts []entities.Post
+func (u *PostRepository) FindAll(page int, pageSize int, offset int) dto.PostPagination {
 	var total int64
 
-	var postList []dto.PostEntities
 	u.DB.DB().Model(&entities.Post{}).Count(&total)
-	u.DB.DB().Scopes(utils.Paginate(&page, &pageSize)).Find(&posts)
 
-	for _, v := range posts {
-		var temp []dto.PostEntitiesRaw
-		var tag []string
-		u.DB.DB().Table("post_tags").Select(
-			"posts.title",
-			"posts.slug",
-			"users.fullname",
-			"posts.slug",
-			"user_id",
-			"tags.slug as tag_slug",
-		).
-			Joins("JOIN posts ON post_tags.post_id = posts.id").
-			Joins("JOIN tags ON post_tags.tag_id = tags.id").
-			Joins("JOIN users ON posts.user_id = users.id").
-			Where("posts.id = ?", v.ID).
-			Scan(&temp)
+	var postRaw []dto.PostEntitiesRaw
+	var postPagination []dto.PostResponse
+	postListMap := map[uint]dto.PostResponse{}
 
-		for _, v := range temp {
-			tag = append(tag, v.TagSlug)
+	u.DB.DB().Debug().Table("post_tags").Select(
+		"posts.id as post_id",
+		"posts.title",
+		"posts.slug",
+		"users.fullname",
+		"posts.slug",
+		"user_id",
+		"tags.slug as tag_slug",
+	).
+		Joins("JOIN posts ON post_tags.post_id = posts.id").
+		Joins("JOIN tags ON post_tags.tag_id = tags.id").
+		Joins("JOIN users ON posts.user_id = users.id").
+		Limit(offset).
+		Offset(pageSize).
+		Scan(&postRaw)
+
+	for _, v := range postRaw {
+		if postListMap[v.PostID].Fullname == "" {
+			var arrSlug []string
+			arrSlug = append(arrSlug, v.TagSlug)
+
+			postListMap[v.PostID] = dto.PostResponse{
+				Title:    v.Title,
+				Fullname: v.Fullname,
+				Slug:     v.Slug,
+				UserID:   v.UserID,
+				TagSlug:  arrSlug,
+			}
+		} else {
+			temp := postListMap[v.PostID]
+			temp.TagSlug = append(temp.TagSlug, v.TagSlug)
+			postListMap[v.PostID] = temp
 		}
-		postList = append(postList, dto.PostEntities{
-			ID:       v.ID,
-			Title:    v.Title,
-			Fullname: temp[0].Fullname,
-			Slug:     v.Slug,
-			UserID:   v.UserID,
-			TagSlug:  tag,
-		})
+	}
+
+	for _, v := range postListMap {
+		postPagination = append(postPagination, v)
 	}
 
 	totalRow := int(math.Ceil(float64(total) / float64(pageSize)))
 
 	return dto.PostPagination{
-		Posts: postList,
+		Posts: postPagination,
 		Pagination: dto.Pagination{
 			Page:    page,
 			PerPage: pageSize,

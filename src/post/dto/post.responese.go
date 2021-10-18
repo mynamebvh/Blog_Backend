@@ -19,17 +19,8 @@ type Pagination struct {
 	Total   int `json:"total"`
 }
 
-type PostEntities struct {
-	ID       uint     `json:"post_id"`
-	Title    string   `json:"title"`
-	Fullname string   `json:"fullname"`
-	Slug     string   `json:"slug"`
-	UserID   uint     `json:"user_id"`
-	TagSlug  []string `json:"tag"`
-}
-
 type PostEntitiesRaw struct {
-	ID       uint   `json:"post_id"`
+	PostID   uint   `json:"post_id"`
 	Title    string `json:"title"`
 	Fullname string `json:"fullname"`
 	Slug     string `json:"slug"`
@@ -38,7 +29,7 @@ type PostEntitiesRaw struct {
 }
 
 type PostPagination struct {
-	Posts      []PostEntities `json:"posts"`
+	Posts      []PostResponse `json:"posts"`
 	Pagination Pagination     `json:"pagination"`
 }
 

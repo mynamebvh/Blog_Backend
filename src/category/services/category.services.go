@@ -5,13 +5,14 @@ import (
 
 	"github.com/gosimple/slug"
 	"mynamebvh.com/blog/internal/entities"
+	"mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/src/category/dto"
 	"mynamebvh.com/blog/src/category/repositories"
 )
 
 type CategoryServiceInterface interface {
 	FindByAll() []entities.Category
-	FindById(id uint) entities.Category
+	FindById(id uint, page int, pageSize int) dto.CategoryResponse
 	Save(category dto.Category) (entities.Category, error)
 	Delete(id uint) error
 	Update(id uint, category dto.Category) (entities.Category, error)
@@ -29,8 +30,9 @@ func NewUserService(
 	}
 }
 
-func (c *CategoryService) FindById(id uint) entities.Category {
-	return c.categoryRepository.FindByID(id)
+func (c *CategoryService) FindById(id uint, page int, pageSize int) dto.CategoryResponse {
+	offset := utils.Paginate(&page, &pageSize)
+	return c.categoryRepository.FindPagination(id, page, pageSize, offset)
 }
 
 func (c *CategoryService) FindByAll() []entities.Category {

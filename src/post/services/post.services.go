@@ -35,7 +35,8 @@ func (c *PostService) FindById(id uint) dto.PostResponse {
 }
 
 func (c *PostService) FindByAll(page int, pageSize int) dto.PostPagination {
-	return c.postRepository.FindAll(page, pageSize)
+	offset := utils.Paginate(&page, &pageSize)
+	return c.postRepository.FindAll(page, pageSize, offset)
 }
 
 func (c *PostService) Save(post dto.Post) (entities.Post, error) {

@@ -13,7 +13,8 @@ import (
 )
 
 type CategoryHandlerInterface interface {
-	GetCategory(ctx *fiber.Ctx) error
+	GetAllCategory(ctx *fiber.Ctx) error
+	GetCategory(crx *fiber.Ctx) error
 	CreateCategory(ctx *fiber.Ctx) error
 	UpdateCategory(ctx *fiber.Ctx) error
 	DeleteCategory(ctx *fiber.Ctx) error
@@ -31,8 +32,19 @@ func NewUserHttpHandler(
 	}
 }
 
-func (services *CategoryHandler) GetCategory(ctx *fiber.Ctx) error {
+func (services *CategoryHandler) GetAllCategory(ctx *fiber.Ctx) error {
 	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.categoryService.FindByAll())
+}
+
+func (services *CategoryHandler) GetCategory(ctx *fiber.Ctx) error {
+
+	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
+
+	if err != nil {
+		return web.JsonResponse(ctx, 404, err.Error(), err.Error())
+	}
+
+	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.categoryService.FindById(uint(id), 10, 0))
 }
 
 func (services *CategoryHandler) CreateCategory(ctx *fiber.Ctx) error {

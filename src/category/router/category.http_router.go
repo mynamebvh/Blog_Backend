@@ -22,7 +22,8 @@ func (r *RouterStruct) GetRoute() {
 	categoryService := services.NewUserService(categorySqlServerRepo)
 	categoryHandler := handler.NewUserHttpHandler(categoryService)
 
-	r.Web.Get("/api/category", categoryHandler.GetCategory)
+	r.Web.Get("/api/category", categoryHandler.GetAllCategory)
+	r.Web.Get("/api/category/:id", categoryHandler.GetCategory)
 	r.Web.Post("/api/category", middlewares.Protected(), categoryHandler.CreateCategory)
 	r.Web.Put("/api/category/:id", middlewares.Protected(), categoryHandler.UpdateCategory)
 	r.Web.Delete("/api/category/:id", middlewares.Protected(), categoryHandler.DeleteCategory)
