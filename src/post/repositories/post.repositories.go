@@ -30,12 +30,17 @@ func NewUserRepostiory(DB db.SqlServer) PostRepositoryInterface {
 
 func (u *PostRepository) FindAll(page int, pageSize int, offset int) dto.PostPagination {
 	var total int64
-
 	u.DB.DB().Model(&entities.Post{}).Count(&total)
 
 	var postRaw []dto.PostEntitiesRaw
 	var postPagination []dto.PostResponse
 	postListMap := map[uint]dto.PostResponse{}
+
+	subQuery := `(SELECT id, created_at, user_id, title, slug, published
+								 FROM posts
+                 ORDER BY created_at desc 
+                 OFFSET ?
+                 ROWS FETCH NEXT ? ROWS ONLY)`
 
 	u.DB.DB().Debug().Table("post_tags").Select(
 		"posts.id as post_id",
@@ -47,12 +52,11 @@ func (u *PostRepository) FindAll(page int, pageSize int, offset int) dto.PostPag
 		"tags.slug as tag_slug",
 		"posts.created_at",
 	).
-		Joins("JOIN posts ON post_tags.post_id = posts.id").
+		Joins("JOIN"+subQuery+"as posts ON post_tags.post_id = posts.id", offset, pageSize).
 		Joins("JOIN tags ON post_tags.tag_id = tags.id").
 		Joins("JOIN users ON posts.user_id = users.id").
-		Limit(offset).
-		Offset(pageSize).
 		Order("created_at desc").
+		Where("published = 'true'").
 		Scan(&postRaw)
 
 	for _, v := range postRaw {
@@ -61,6 +65,7 @@ func (u *PostRepository) FindAll(page int, pageSize int, offset int) dto.PostPag
 			arrSlug = append(arrSlug, v.TagSlug)
 
 			postListMap[v.PostID] = dto.PostResponse{
+				PostID:   v.PostID,
 				Title:    v.Title,
 				Fullname: v.Fullname,
 				Slug:     v.Slug,

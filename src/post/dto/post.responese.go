@@ -35,6 +35,7 @@ type PostPagination struct {
 }
 
 type PostResponse struct {
+	PostID    uint      `json:"post_id"`
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
 	Fullname  string    `json:"fullname"`
