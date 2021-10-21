@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"mynamebvh.com/blog/internal/enums"
 	"mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/internal/web"
 	"mynamebvh.com/blog/src/category/dto"
@@ -33,7 +33,7 @@ func NewUserHttpHandler(
 }
 
 func (services *CategoryHandler) GetAllCategory(ctx *fiber.Ctx) error {
-	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.categoryService.FindByAll())
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, services.categoryService.FindByAll())
 }
 
 func (services *CategoryHandler) GetCategory(ctx *fiber.Ctx) error {
@@ -41,7 +41,7 @@ func (services *CategoryHandler) GetCategory(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 
 	if err != nil {
-		return web.JsonResponse(ctx, 404, err.Error(), err.Error())
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
 	}
 
 	page, err := strconv.Atoi(ctx.Query("page"))
@@ -56,7 +56,7 @@ func (services *CategoryHandler) GetCategory(ctx *fiber.Ctx) error {
 		pageSize = 10
 	}
 
-	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.categoryService.FindById(uint(id), page, pageSize))
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, services.categoryService.FindById(uint(id), page, pageSize))
 }
 
 func (services *CategoryHandler) CreateCategory(ctx *fiber.Ctx) error {
@@ -64,21 +64,22 @@ func (services *CategoryHandler) CreateCategory(ctx *fiber.Ctx) error {
 	newCategory := new(dto.Category)
 
 	if err := ctx.BodyParser(&newCategory); err != nil {
-		log.Fatal(err)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
+
 	}
 
 	errors := utils.Validate(newCategory)
 
 	if errors != nil {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
 	}
 
 	res, err := services.categoryService.Save(*newCategory)
 
 	if err != nil {
-		web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi", err)
+		web.JsonResponse(ctx, http.StatusInternalServerError, enums.ERROR_SERVER, nil)
 	}
-	return web.JsonResponse(ctx, http.StatusOK, "Tạo thành công", res)
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, res)
 }
 
 func (services *CategoryHandler) UpdateCategory(ctx *fiber.Ctx) error {
@@ -87,26 +88,27 @@ func (services *CategoryHandler) UpdateCategory(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 
 	if err != nil {
-		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_ID_NOT_FOUND, nil)
 	}
 
 	if err := ctx.BodyParser(&categoryUpdate); err != nil {
-		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
+
 	}
 
 	errors := utils.Validate(categoryUpdate)
 
 	if errors != nil {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
 	}
 
 	category, err := services.categoryService.Update(uint(id), *categoryUpdate)
 
 	if err != nil {
-		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
+		return web.JsonResponse(ctx, http.StatusInternalServerError, enums.ERROR_UPDATE, nil)
 	}
 
-	return web.JsonResponse(ctx, http.StatusOK, "Cập nhật thành công", category)
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, category)
 }
 
 func (services *CategoryHandler) DeleteCategory(ctx *fiber.Ctx) error {
@@ -114,14 +116,14 @@ func (services *CategoryHandler) DeleteCategory(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 
 	if err != nil {
-		return web.JsonResponse(ctx, 404, err.Error(), err.Error())
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_ID_NOT_FOUND, nil)
 	}
 
 	err = services.categoryService.Delete(uint(id))
 
 	if err != nil {
-		return web.JsonResponse(ctx, 404, "Lỗi", err.Error())
+		return web.JsonResponse(ctx, http.StatusInternalServerError, enums.ERROR_DELETE, nil)
 	} else {
-		return web.JsonResponse(ctx, 200, "Xoá thành công", nil)
+		return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, nil)
 	}
 }

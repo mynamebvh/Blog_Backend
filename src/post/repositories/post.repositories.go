@@ -45,12 +45,14 @@ func (u *PostRepository) FindAll(page int, pageSize int, offset int) dto.PostPag
 		"posts.slug",
 		"user_id",
 		"tags.slug as tag_slug",
+		"posts.created_at",
 	).
 		Joins("JOIN posts ON post_tags.post_id = posts.id").
 		Joins("JOIN tags ON post_tags.tag_id = tags.id").
 		Joins("JOIN users ON posts.user_id = users.id").
 		Limit(offset).
 		Offset(pageSize).
+		Order("created_at desc").
 		Scan(&postRaw)
 
 	for _, v := range postRaw {

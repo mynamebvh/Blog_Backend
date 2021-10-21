@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"mynamebvh.com/blog/internal/enums"
 	"mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/internal/web"
 	"mynamebvh.com/blog/src/tag/dto"
@@ -32,7 +32,7 @@ func NewUserHttpHandler(
 }
 
 func (services *TagHandler) GetTag(ctx *fiber.Ctx) error {
-	return web.JsonResponse(ctx, http.StatusOK, "Thành công", services.tagService.FindByAll())
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, services.tagService.FindByAll())
 }
 
 func (services *TagHandler) CreateTag(ctx *fiber.Ctx) error {
@@ -40,21 +40,21 @@ func (services *TagHandler) CreateTag(ctx *fiber.Ctx) error {
 	newTag := new(dto.Tag)
 
 	if err := ctx.BodyParser(&newTag); err != nil {
-		log.Fatal(err)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
 	}
 
 	errors := utils.Validate(newTag)
 
 	if errors != nil {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
 	}
 
 	res, err := services.tagService.Save(*newTag)
 
 	if err != nil {
-		web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi", err)
+		web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR, err)
 	}
-	return web.JsonResponse(ctx, http.StatusOK, "Tạo thành công", res)
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, res)
 }
 
 func (services *TagHandler) UpdateTag(ctx *fiber.Ctx) error {
@@ -63,26 +63,26 @@ func (services *TagHandler) UpdateTag(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 
 	if err != nil {
-		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_ID_NOT_FOUND, nil)
 	}
 
 	if err := ctx.BodyParser(&tagUpdate); err != nil {
-		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
 	}
 
 	errors := utils.Validate(tagUpdate)
 
 	if errors != nil {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
 	}
 
 	category, err := services.tagService.Update(uint(id), *tagUpdate)
 
 	if err != nil {
-		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi", err.Error())
+		return web.JsonResponse(ctx, http.StatusInternalServerError, enums.ERROR_UPDATE, nil)
 	}
 
-	return web.JsonResponse(ctx, http.StatusOK, "Cập nhật thành công", category)
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, category)
 }
 
 func (services *TagHandler) DeleteTag(ctx *fiber.Ctx) error {
@@ -90,14 +90,14 @@ func (services *TagHandler) DeleteTag(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 
 	if err != nil {
-		return web.JsonResponse(ctx, 404, err.Error(), err.Error())
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_ID_NOT_FOUND, nil)
 	}
 
 	err = services.tagService.Delete(uint(id))
 
 	if err != nil {
-		return web.JsonResponse(ctx, 404, "Lỗi", err.Error())
+		return web.JsonResponse(ctx, http.StatusInternalServerError, enums.ERROR_DELETE, nil)
 	} else {
-		return web.JsonResponse(ctx, 200, "Xoá thành công", nil)
+		return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, nil)
 	}
 }

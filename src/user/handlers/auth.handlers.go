@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"mynamebvh.com/blog/internal/enums"
 	"mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/internal/web"
 	"mynamebvh.com/blog/src/user/dto"
@@ -32,20 +32,21 @@ func (services *authHandlers) Login(ctx *fiber.Ctx) error {
 	userData := new(dto.UserLogin)
 
 	if err := ctx.BodyParser(userData); err != nil {
-		log.Fatal(err)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
+
 	}
 
 	errors := utils.Validate(userData)
 
 	if errors != nil {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, errors)
 	}
 
 	res, err := services.UserService.Login(userData)
 
 	if err != nil {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Mật khẩu sai", nil)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.MSG_PASSWORD_WRONG, nil)
 	}
 
-	return web.JsonResponse(ctx, http.StatusOK, "Đăng nhập thành công", res)
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, res)
 }

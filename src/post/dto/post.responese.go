@@ -20,12 +20,13 @@ type Pagination struct {
 }
 
 type PostEntitiesRaw struct {
-	PostID   uint   `json:"post_id"`
-	Title    string `json:"title"`
-	Fullname string `json:"fullname"`
-	Slug     string `json:"slug"`
-	UserID   uint   `json:"user_id"`
-	TagSlug  string `json:"tag"`
+	PostID    uint      `json:"post_id"`
+	Title     string    `json:"title"`
+	Fullname  string    `json:"fullname"`
+	Slug      string    `json:"slug"`
+	UserID    uint      `json:"user_id"`
+	TagSlug   string    `json:"tag"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type PostPagination struct {

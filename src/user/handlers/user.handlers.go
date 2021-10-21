@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"mynamebvh.com/blog/internal/enums"
 	"mynamebvh.com/blog/internal/utils"
 	"mynamebvh.com/blog/internal/web"
 	dto "mynamebvh.com/blog/src/user/dto"
@@ -38,16 +38,16 @@ func (services *userHandlers) GetUser(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseUint(ctx.Params("id"), 10, 32)
 
 	if err != nil {
-		return web.JsonResponse(ctx, http.StatusOK, "Lỗi id", nil)
+		return web.JsonResponse(ctx, http.StatusOK, enums.ERROR_ID_NOT_FOUND, nil)
 	}
 
 	user := services.UserService.FindByID(uint(id))
 
 	if user.ID == 0 {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Không tìm thấy người dùng", nil)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_USER_NOT_FOUND, nil)
 	}
 
-	return web.JsonResponse(ctx, http.StatusOK, "Thành công", user)
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, user)
 }
 
 func (services *userHandlers) GetAllUser(ctx *fiber.Ctx) error {
@@ -59,7 +59,8 @@ func (services *userHandlers) CreateUser(ctx *fiber.Ctx) error {
 	newUser := new(dto.UserRequest)
 
 	if err := ctx.BodyParser(&newUser); err != nil {
-		log.Fatal(err)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, nil)
+
 	}
 
 	res, err := services.UserService.Signup(newUser)
@@ -68,7 +69,7 @@ func (services *userHandlers) CreateUser(ctx *fiber.Ctx) error {
 		return web.JsonResponse(ctx, http.StatusUnauthorized, err.Error(), nil)
 	}
 
-	return web.JsonResponse(ctx, http.StatusOK, "Tạo tài khoản thành công", res)
+	return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, res)
 }
 
 func (services *userHandlers) UpdateUser(ctx *fiber.Ctx) error {
@@ -79,21 +80,21 @@ func (services *userHandlers) UpdateUser(ctx *fiber.Ctx) error {
 	userUpdate := new(dto.UserUpdate)
 
 	if err := ctx.BodyParser(&userUpdate); err != nil {
-		web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi máy chủ", err)
+		web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, err)
 	}
 
 	errors := utils.Validate(userUpdate)
 
 	if errors != nil {
-		return web.JsonResponse(ctx, http.StatusBadRequest, "Lỗi validate", errors)
+		return web.JsonResponse(ctx, http.StatusBadRequest, enums.ERROR_VALIDATE, errors)
 	}
 
 	userUpdated, err := services.UserService.Update(uint(id), *userUpdate)
 
 	if err != nil {
-		return web.JsonResponse(ctx, http.StatusInternalServerError, "Lỗi cập nhật", userUpdated)
+		return web.JsonResponse(ctx, http.StatusInternalServerError, enums.ERROR_UPDATE, userUpdated)
 	} else {
-		return web.JsonResponse(ctx, http.StatusOK, "Cập nhật thành công", userUpdate)
+		return web.JsonResponse(ctx, http.StatusOK, enums.MSG_SUCCESS, userUpdate)
 	}
 }
 
@@ -105,8 +106,8 @@ func (services *userHandlers) DeleteUser(ctx *fiber.Ctx) error {
 	err := services.UserService.Delete(uint(id))
 
 	if err != nil {
-		return web.JsonResponse(ctx, 404, err.Error(), nil)
+		return web.JsonResponse(ctx, 404, enums.ERROR_DELETE, nil)
 	} else {
-		return web.JsonResponse(ctx, 200, "Xoá thành công", nil)
+		return web.JsonResponse(ctx, 200, enums.MSG_SUCCESS, nil)
 	}
 }
