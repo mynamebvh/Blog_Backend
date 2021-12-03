@@ -22,6 +22,7 @@ type Pagination struct {
 type PostEntitiesRaw struct {
 	PostID    uint      `json:"post_id"`
 	Title     string    `json:"title"`
+	Content   string    `json:"content"`
 	Fullname  string    `json:"fullname"`
 	Slug      string    `json:"slug"`
 	UserID    uint      `json:"user_id"`

@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"math"
+	"strings"
 	"sync"
 
 	"github.com/gosimple/slug"
@@ -49,38 +50,33 @@ func (u *PostRepository) FindAll(page int, pageSize int, offset int) dto.PostPag
 		"users.fullname",
 		"posts.slug",
 		"user_id",
-		"tags.slug as tag_slug",
+		"STRING_AGG(tags.slug,',') as tag_slug",
 		"posts.created_at",
 	).
 		Joins("JOIN"+subQuery+"as posts ON post_tags.post_id = posts.id", offset, pageSize).
 		Joins("JOIN tags ON post_tags.tag_id = tags.id").
 		Joins("JOIN users ON posts.user_id = users.id").
+		Group("posts.id,posts.title,posts.slug,users.fullname,posts.slug,user_id,posts.created_at").
 		Order("created_at desc").
 		Where("published = 'true'").
 		Scan(&postRaw)
 
 	for _, v := range postRaw {
 		if postListMap[v.PostID].Fullname == "" {
-			var arrSlug []string
-			arrSlug = append(arrSlug, v.TagSlug)
 
-			postListMap[v.PostID] = dto.PostResponse{
+			var arrSlug []string = strings.Split(v.TagSlug, ",")
+
+			var postP = dto.PostResponse{
 				PostID:   v.PostID,
-				Title:    v.Title,
-				Fullname: v.Fullname,
 				Slug:     v.Slug,
+				Title:    v.Title,
+				Content:  v.Content,
+				Fullname: v.Fullname,
 				UserID:   v.UserID,
 				TagSlug:  arrSlug,
 			}
-		} else {
-			temp := postListMap[v.PostID]
-			temp.TagSlug = append(temp.TagSlug, v.TagSlug)
-			postListMap[v.PostID] = temp
+			postPagination = append(postPagination, postP)
 		}
-	}
-
-	for _, v := range postListMap {
-		postPagination = append(postPagination, v)
 	}
 
 	totalRow := int(math.Ceil(float64(total) / float64(pageSize)))

@@ -35,3 +35,5 @@ require (
 	github.com/gosimple/unidecode v1.0.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )
+
+require github.com/davecgh/go-spew v1.1.1 // indirect
